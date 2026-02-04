@@ -32,3 +32,28 @@ Calcifer is a **secure-by-design personal AI agent** demonstrating governance pa
 - Secrets excluded via .gitignore  
 - Local-first memory  
 - Explicit PII boundaries
+
+## What This Project Demonstrates
+
+- Agent architecture patterns usable in DoD environments  
+- Safe automation design for personal operations  
+- Traceable decision making  
+- Separation of identity, memory, and tools
+
+## Structure
+
+- /src – agent runtime and orchestration  
+- /skills – capability modules  
+- /config – policy and identity  
+- /memory – user-owned context  
+- /tests – safety and behavior tests  
+- /docs – design rationale
+
+## Local Goals
+
+- No cloud dependency by default  
+- Explicit approvals for external actions  
+- Human-readable memory  
+- Auditable logs
+
+> “Text > Brain. If it matters, write it to a file.”
