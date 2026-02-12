@@ -8,12 +8,15 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from src.adapters.llm.openai_client import OpenAIClient
-from src.adapters.storage.journal import MemoryJournal
-from src.core.approvals import ApprovalStore
-from src.core.tool_router import ToolCall, ToolRouter
+from calcifer.adapters.llm.openai_client import OpenAIClient
+from calcifer.adapters.storage.journal import MemoryJournal
+from calcifer.core.approvals import ApprovalStore
+from calcifer.core.tool_router import ToolCall, ToolRouter
 
 load_dotenv()
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+MEMORY_DIR = REPO_ROOT / "memory"
 
 
 class ChatRequest(BaseModel):
@@ -29,10 +32,10 @@ class ApproveRequest(BaseModel):
 class AgentService:
     def __init__(self) -> None:
         self.router = ToolRouter()
-        self.approvals = ApprovalStore()
-        self.journal = MemoryJournal("memory")
-        self.identity = Path("config/IDENTITY.md").read_text(encoding="utf-8")
-        self.long_term_memory = Path("memory/MEMORY.md").read_text(encoding="utf-8")
+        self.approvals = ApprovalStore(storage_path=str(MEMORY_DIR / "approvals.json"))
+        self.journal = MemoryJournal(str(MEMORY_DIR))
+        self.identity = (REPO_ROOT / "config/IDENTITY.md").read_text(encoding="utf-8")
+        self.long_term_memory = (MEMORY_DIR / "MEMORY.md").read_text(encoding="utf-8")
         self.model = os.getenv("OPENAI_MODEL", "gpt-5.2")
         self.llm = OpenAIClient() if os.getenv("OPENAI_API_KEY") else None
 

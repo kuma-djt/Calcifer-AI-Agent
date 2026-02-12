@@ -1,5 +1,5 @@
 # Calcifer entry point
-from core.runtime import Runtime
+from calcifer.core.runtime import Runtime
 
 def main():
     rt = Runtime(model="gpt-5.2")
