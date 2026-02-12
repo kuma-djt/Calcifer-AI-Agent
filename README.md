@@ -1,59 +1,81 @@
-# Calcifer-AI-Agent
-Calcifer is a secure-by-design home operations agent demonstrating AI governance patterns: tool gating, approvals, memory hygiene, auditability, and human-in-the-loop control.
+# Calcifer — Local-First Governance-First AI Agent
 
-# Calcifer – Home Operations Agent
+Calcifer is an MVP agent with a local FastAPI backend and separate React UI. It uses deterministic skills, explicit approval gating for risky actions, and markdown-based memory journaling.
 
-Calcifer is a **secure-by-design personal AI agent** demonstrating governance patterns relevant to DoD and enterprise agent deployments:
+## Repository layout
 
-- Tool gating with human approval  
-- Memory hygiene (daily vs long-term)  
-- Auditable action logs  
-- Policy-driven execution  
-- Provider-agnostic LLM runtime (GPT-5.2)
+- `apps/api` — FastAPI app (`/health`, `/chat`, `/approve`)
+- `apps/ui` — React + Vite chat UI
+- `src/core` — approvals + tool routing
+- `src/adapters` — storage + LLM adapter
+- `skills` — deterministic skill implementations
+- `memory` — long-term memory + daily journals
+- `tests` — governance and routing tests
 
-## Capabilities (MVP)
+## Setup
 
-- Meal & grocery planning  
-- Routine checklists  
-- Draft communications (confirm-before-send)  
-- Budget awareness  
-- Local memory with privacy boundaries
+### 1) Create and populate env
 
-## Architecture
+```powershell
+Copy-Item .env.example .env
+```
 
-- FastAPI Gateway  
-- Agent runtime with tool registry  
-- SQLite + file memory  
-- Human-in-the-loop approvals
+Set at least:
 
-## Security Principles
+- `CALCIFER_API_TOKEN`
+- `VITE_API_TOKEN` (same value)
+- Optional: `OPENAI_API_KEY`
 
-- No external actions without confirmation  
-- Secrets excluded via .gitignore  
-- Local-first memory  
-- Explicit PII boundaries
+### 2) Install backend dependencies
 
-## What This Project Demonstrates
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-- Agent architecture patterns usable in DoD environments  
-- Safe automation design for personal operations  
-- Traceable decision making  
-- Separation of identity, memory, and tools
+### 3) Install UI dependencies
 
-## Structure
+```powershell
+cd apps/ui
+npm install
+cd ../..
+```
 
-- /src – agent runtime and orchestration  
-- /skills – capability modules  
-- /config – policy and identity  
-- /memory – user-owned context  
-- /tests – safety and behavior tests  
-- /docs – design rationale
+## Run API
 
-## Local Goals
+```powershell
+$env:CALCIFER_API_TOKEN="change-me"
+python -m uvicorn apps.api.app:app --host 127.0.0.1 --port 8000 --reload
+```
 
-- No cloud dependency by default  
-- Explicit approvals for external actions  
-- Human-readable memory  
-- Auditable logs
+## Run UI
 
-> “Text > Brain. If it matters, write it to a file.”
+```powershell
+cd apps/ui
+$env:VITE_API_BASE_URL="http://127.0.0.1:8000"
+$env:VITE_API_TOKEN="change-me"
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+## Run tests
+
+```powershell
+pytest -q
+```
+
+## Approvals system
+
+- Risky intents (e.g., purchase/order) are deny-by-default.
+- `/chat` returns `needs_approval` with an `approval_id` for risky requests.
+- UI displays approval controls and calls `/approve`.
+- Journal entries are appended to `memory/YYYY-MM-DD.md` for each turn.
+
+## Demo flow
+
+1. Send: `make me a grocery plan for pasta night`.
+2. Observe deterministic groceries response.
+3. Send: `purchase paper towels`.
+4. Observe approval prompt.
+5. Approve or deny and observe audited result.

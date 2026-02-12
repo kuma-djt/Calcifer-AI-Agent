@@ -1,22 +1,27 @@
-# Architecture Rationale
+# Calcifer MVP Architecture
 
-## Separation of Concerns
+## API layer (`apps/api/app.py`)
 
-1. Identity → config  
-2. Skills → tools  
-3. Memory → user-owned  
-4. Runtime → orchestration
+- Token-authenticated endpoints.
+- CORS scoped to local Vite origins.
+- Agent service coordinates routing, approvals, and journaling.
 
-## Security Model
+## Runtime primitives (`src/core`)
 
-- Least privilege  
-- Human approvals  
-- No silent actions  
-- Auditable memory
+- `ToolRouter`: deterministic classification and execution.
+- `ApprovalStore`: in-memory pending approvals with lock-protected access.
 
-## DoD Relevance
+## Adapters (`src/adapters`)
 
-- Mirrors RMF boundaries  
-- Supports explainability  
-- Red/blue separation  
-- Zero-trust principles
+- `MemoryJournal`: appends markdown entries to daily files.
+- `OpenAIClient`: optional fallback response generation when key exists.
+
+## Skills (`skills/*`)
+
+- `groceries_planner` and `routine_builder` deterministic functions.
+
+## UI (`apps/ui`)
+
+- Transcript + composer.
+- Approval card for risky actions.
+- Session persistence via `localStorage`.
