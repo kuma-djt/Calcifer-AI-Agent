@@ -1,8 +1,11 @@
-from adapters.llm.openai_client import OpenAIClient
-from core.prompt_builder import build_messages
+from __future__ import annotations
+
+from calcifer.adapters.llm.openai_client import OpenAIClient
+from calcifer.core.prompt_builder import build_messages
+
 
 class Runtime:
-    def __init__(self, model="gpt-5.2"):
+    def __init__(self, model: str = "gpt-5.2") -> None:
         self.llm = OpenAIClient()
         self.model = model
 

@@ -1,8 +1,4 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+# Intentionally empty: imports are resolved through package installation
+# (e.g., `pip install -e .`) instead of mutating sys.path at runtime.

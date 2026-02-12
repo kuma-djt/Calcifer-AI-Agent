@@ -6,15 +6,28 @@ Calcifer is an MVP agent with a local FastAPI backend and separate React UI. It 
 
 - `apps/api` — FastAPI app (`/health`, `/chat`, `/approve`)
 - `apps/ui` — React + Vite chat UI
-- `src/core` — approvals + tool routing
-- `src/adapters` — storage + LLM adapter
-- `skills` — deterministic skill implementations
+- `src/calcifer` — packaged runtime code (core + adapters + deterministic skills)
 - `memory` — long-term memory + daily journals
 - `tests` — governance and routing tests
 
-## Setup
+## Windows PowerShell (fresh-clone reliable)
 
-### 1) Create and populate env
+```powershell
+py -m venv .venv
+Set-ExecutionPolicy -Scope Process Bypass
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip setuptools wheel
+python -m pip install -e ".[dev]"
+python -m pytest -q
+```
+
+If your environment blocks build-isolation downloads, retry install with:
+
+```powershell
+python -m pip install -e ".[dev]" --no-build-isolation
+```
+
+## Environment file
 
 ```powershell
 Copy-Item .env.example .env
@@ -23,25 +36,7 @@ Copy-Item .env.example .env
 Set at least:
 
 - `CALCIFER_API_TOKEN`
-- `VITE_API_TOKEN` (same value)
 - Optional: `OPENAI_API_KEY`
-
-### 2) Install backend dependencies
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 3) Install UI dependencies
-
-```powershell
-cd apps/ui
-npm install
-cd ../..
-```
 
 ## Run API
 
@@ -50,32 +45,23 @@ $env:CALCIFER_API_TOKEN="change-me"
 python -m uvicorn apps.api.app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-## Run UI
+## Run API smoke demo (no UI required)
+
+```powershell
+$env:CALCIFER_API_TOKEN="change-me"
+python scripts/smoke_api.py
+```
+
+The smoke script demonstrates normal chat, approval gating, and approval execution using `/chat` and `/approve`.
+
+## Optional UI install/run
 
 ```powershell
 cd apps/ui
+npm install
 $env:VITE_API_BASE_URL="http://127.0.0.1:8000"
 $env:VITE_API_TOKEN="change-me"
 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-## Run tests
-
-```powershell
-pytest -q
-```
-
-## Approvals system
-
-- Risky intents (e.g., purchase/order) are deny-by-default.
-- `/chat` returns `needs_approval` with an `approval_id` for risky requests.
-- UI displays approval controls and calls `/approve`.
-- Journal entries are appended to `memory/YYYY-MM-DD.md` for each turn.
-
-## Demo flow
-
-1. Send: `make me a grocery plan for pasta night`.
-2. Observe deterministic groceries response.
-3. Send: `purchase paper towels`.
-4. Observe approval prompt.
-5. Approve or deny and observe audited result.
+If `npm install` is blocked in your environment, you can still demo the backend with `scripts/smoke_api.py`.

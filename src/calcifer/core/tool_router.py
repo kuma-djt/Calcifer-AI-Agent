@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from skills.groceries_planner.skill import plan_groceries
-from skills.routine_builder.skill import build_routine
+from calcifer.skills.groceries_planner.skill import plan_groceries
+from calcifer.skills.routine_builder.skill import build_routine
 
 
 @dataclass
